@@ -3,12 +3,21 @@ from flask import Flask, render_template, request, redirect, session,flash
 from flask_sqlalchemy import SQLAlchemy
 import bcrypt
 import re
+import os
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+
+# Use PostgreSQL in production, SQLite in development
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
+    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL or "sqlite:///database.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
-app.secret_key = 'secret_key'
+app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-this-in-production')
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -101,6 +110,10 @@ def dashboard():
         user = User.query.filter_by(email=session['email']).first()
         return render_template("dashboard.html", user=user)
     return redirect('/login')
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)), debug=os.getenv('FLASK_ENV') == 'development')
 
 @app.route('/logout')
 def logout():
