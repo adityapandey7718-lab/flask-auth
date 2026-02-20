@@ -1,6 +1,6 @@
-Flask==3.1.2
-Flask-SQLAlchemy==3.1.1
-SQLAlchemy==2.0.46
-bcrypt==5.0.0
-gunicorn==21.2.0
-psycopg2-binary==2.10.0
+Flask
+Flask-SQLAlchemy
+SQLAlchemy
+bcrypt
+gunicorn
+psycopg2-binary
